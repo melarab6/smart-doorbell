@@ -1,37 +1,50 @@
-# Smart Doorbell ESP32-CAM
+# Smart Doorbell
 
-This project is a low-cost smart doorbell prototype built using an ESP32-CAM module. The first version focuses on creating a functional doorbell camera system that can stream or capture images and connect to a web dashboard.
+A portable smart doorbell system built using the **Seeed Studio XIAO ESP32-S3 Sense**, a PIR motion sensor, physical doorbell button, and a Flask web application.
 
-## Current Goal
+The system is designed to detect motion or a doorbell button press, capture an image, and send the event over Wi-Fi to a Flask server running on a computer. The server will store the event and display it through a web dashboard.
 
-Build a functional doorbell system with:
+> **Status:** 🚧 Currently in development
 
-- ESP32-CAM camera module
-- Doorbell button
-- Status LED
-- Buzzer
-- Motion sensor
-- Basic web dashboard
+---
 
-## Planned Features
+## Project Goal
 
-- Live camera stream
-- Button-triggered image capture
-- Motion-triggered image capture
-- Web dashboard for viewing doorbell events
-- Weather-resistant 3D-printed enclosure
-- AI object detection in a later version
+The goal of this project is to build a complete embedded system that combines hardware, firmware, networking, backend development, and a web interface.
 
-## Hardware
+The first version will support:
 
-- ESP32-CAM with OV2640 camera
-- ESP32-CAM-MB programmer
-- PIR motion sensor
-- Push button
-- LED and resistor
-- Buzzer
-- Breadboard and jumper wires
+- PIR motion detection
+- Physical doorbell button detection
+- Automatic image capture
+- Wi-Fi communication
+- Image upload to a computer
+- Event storage
+- Event timestamps
+- Web-based event history
 
-## Project Status
+---
 
-Planning and parts selection.
+## System Architecture
+
+```text
+PIR Motion Sensor ─────┐
+                       │
+Doorbell Button ───────┤
+                       ↓
+              XIAO ESP32-S3 Sense
+                       │
+                    Camera
+                       │
+                     Wi-Fi
+                       │
+                       ↓
+                Flask REST API
+                       │
+              ┌────────┴────────┐
+              ↓                 ↓
+           SQLite            Images
+              │                 │
+              └────────┬────────┘
+                       ↓
+                 Web Dashboard

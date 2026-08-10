@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Front door activity from your smart doorbell.">
+    <title>Smart Doorbell | Front Door Activity</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js" defer></script>
+</head>
+<body>
+    <main class="dashboard">
+        <!-- Dashboard heading and current system status -->
+        <header class="dashboard-header">
+            <div>
+                <p class="eyebrow">Home Security</p>
+                <h1>Smart Doorbell</h1>
+                <p class="subtitle">Front Door Activity</p>
+            </div>
+
+            <div class="system-status" role="status" aria-label="System status: online">
+                <span class="status-dot" aria-hidden="true"></span>
+                <span>System Online</span>
+            </div>
+        </header>
+
+        <!-- JavaScript replaces the status message with event cards when data arrives. -->
+        <section class="activity-section" aria-labelledby="activity-heading">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">History</p>
+                    <h2 id="activity-heading">Recent Activity</h2>
+                </div>
+                <p class="section-note">Latest events from your front door</p>
+            </div>
+
+            <div id="activity-list" class="activity-grid" aria-live="polite" aria-busy="true">
+                <div class="message-card loading-state">
+                    <span class="loading-spinner" aria-hidden="true"></span>
+                    <p>Loading activity...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

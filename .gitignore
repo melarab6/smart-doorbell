@@ -209,6 +209,17 @@ tempCodeRunnerFile.py
 # PyPI configuration file
 .pypirc
 
+# Smart doorbell local files
+.venv/
+venv/
+**pycache**/
+*.pyc
+doorbell.db
+uploads/*
+!uploads/.gitkeep
+.env
+secrets.h
+
 # Marimo
 marimo/_static/
 marimo/_lsp/

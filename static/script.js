@@ -1,6 +1,13 @@
 // Load the latest doorbell events after the document is ready.
-document.addEventListener("DOMContentLoaded", loadActivity);
+// Wait until the HTML page is ready.
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("clear-all-button").addEventListener("click", clearAllEvents);
+    // Load the events immediately when the page opens.
+    loadActivity();
 
+    // Ask Flask for the newest events every 5 seconds.
+    setInterval(loadActivity, 5000);
+});
 async function loadActivity() {
     const activityList = document.getElementById("activity-list");
 
@@ -33,6 +40,8 @@ async function loadActivity() {
 }
 
 function renderEvents(container, events) {
+    const clearAllButton = document.getElementById("clear-all-button");
+    clearAllButton.hidden = events.length === 0;
     container.replaceChildren();
 
     if (events.length === 0) {
@@ -63,7 +72,8 @@ function createEventCard(event) {
 
     const image = document.createElement("img");
     image.className = "event-image";
-    image.src = `/uploads/${encodeURIComponent(event.image_filename)}`;
+    const displayedFilename = event.annotated_image_filename || event.image_filename;
+    image.src = `/uploads/${encodeURIComponent(displayedFilename)}`;
     image.alt = `${eventInfo.label} capture`;
     image.loading = "lazy";
     image.addEventListener("error", () => {
@@ -97,15 +107,136 @@ function createEventCard(event) {
     timestamp.className = "event-time";
     timestamp.textContent = event.timestamp || "Time unavailable";
 
+    const personStatus = document.createElement("p");
+    personStatus.className = event.person_detected
+        ? "person-status person-status--detected"
+        : "person-status";
+    if (event.person_count > 1) {
+        personStatus.textContent = `${event.person_count} People Detected`;
+    } else if (event.person_detected) {
+        personStatus.textContent = "Person Detected";
+    } else {
+        personStatus.textContent = "No Person Detected";
+    }
+
+    const aiSummary = document.createElement("p");
+    aiSummary.className = "ai-summary";
+    aiSummary.textContent = event.ai_summary || "No recognized objects detected";
+
+    const detectionSummary = createDetectionSummary(event.detections);
+
     const badge = document.createElement("span");
     badge.className = "event-type-badge";
     badge.textContent = eventInfo.badge;
 
-    textGroup.append(label, timestamp);
-    details.append(textGroup, badge);
+    const cardActions = document.createElement("div");
+    cardActions.className = "event-actions";
+
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "delete-button";
+    deleteButton.type = "button";
+    deleteButton.textContent = "Delete";
+    deleteButton.setAttribute("aria-label", `Delete ${eventInfo.label} from ${event.timestamp || "unknown time"}`);
+    deleteButton.addEventListener("click", () => deleteEvent(event.id, card, deleteButton));
+
+    cardActions.append(badge, deleteButton);
+
+    textGroup.append(label, timestamp, personStatus, aiSummary, detectionSummary);
+    details.append(textGroup, cardActions);
     card.append(imageWrap, details);
 
     return card;
+}
+
+function createDetectionSummary(detections) {
+    const summary = document.createElement("div");
+    summary.className = "detection-summary";
+
+    if (!Array.isArray(detections) || detections.length === 0) {
+        summary.textContent = "No objects detected";
+        return summary;
+    }
+
+    const heading = document.createElement("span");
+    heading.className = "detection-heading";
+    heading.textContent = "Detected Objects";
+
+    const list = document.createElement("ul");
+    detections.forEach((detection) => {
+        const item = document.createElement("li");
+        const label = capitalizeLabel(detection.label);
+        const confidence = Math.round(Number(detection.confidence) * 100);
+        item.textContent = `${label} — ${confidence}%`;
+        list.appendChild(item);
+    });
+
+    summary.append(heading, list);
+    return summary;
+}
+
+function capitalizeLabel(label) {
+    return String(label || "Object")
+        .replaceAll("_", " ")
+        .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+async function deleteEvent(eventId, card, button) {
+    if (!window.confirm("Delete this image? This cannot be undone.")) {
+        return;
+    }
+
+    button.disabled = true;
+
+    try {
+        await sendDeleteRequest(`/api/events/${encodeURIComponent(eventId)}`);
+        card.remove();
+
+        const activityList = document.getElementById("activity-list");
+        if (!activityList.querySelector(".event-card")) {
+            document.getElementById("clear-all-button").hidden = true;
+            renderMessage(activityList, "No activity recorded yet.", "Your doorbell events will appear here.");
+        }
+    } catch (error) {
+        console.error("Unable to delete event:", error);
+        window.alert("The image could not be deleted. Please try again.");
+        button.disabled = false;
+    }
+}
+
+async function clearAllEvents() {
+    if (!window.confirm("Delete all images and activity history? This cannot be undone.")) {
+        return;
+    }
+
+    const button = document.getElementById("clear-all-button");
+    button.disabled = true;
+
+    try {
+        await sendDeleteRequest("/api/events");
+        button.hidden = true;
+        renderMessage(
+            document.getElementById("activity-list"),
+            "No activity recorded yet.",
+            "Your doorbell events will appear here."
+        );
+    } catch (error) {
+        console.error("Unable to clear activity:", error);
+        window.alert("The images could not be cleared. Please try again.");
+    } finally {
+        button.disabled = false;
+    }
+}
+
+async function sendDeleteRequest(url) {
+    const response = await fetch(url, {
+        method: "DELETE",
+        headers: { Accept: "application/json" }
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.success) {
+        throw new Error(data.error || `Request failed with status ${response.status}`);
+    }
 }
 
 // Keep known event types visually distinct and handle future types safely.

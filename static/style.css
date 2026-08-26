@@ -125,6 +125,51 @@ h2 {
     text-align: right;
 }
 
+.section-actions {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.clear-all-button,
+.delete-button {
+    border: 1px solid #e1b9b9;
+    border-radius: 9px;
+    color: #a12e2e;
+    background: #fff7f7;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.clear-all-button {
+    padding: 7px 11px;
+}
+
+.delete-button {
+    padding: 5px 9px;
+}
+
+.clear-all-button:hover,
+.delete-button:hover {
+    border-color: #c87979;
+    background: #ffeded;
+}
+
+.clear-all-button:focus-visible,
+.delete-button:focus-visible {
+    outline: 3px solid rgba(161, 46, 46, 0.2);
+    outline-offset: 2px;
+}
+
+.clear-all-button:disabled,
+.delete-button:disabled {
+    cursor: wait;
+    opacity: 0.55;
+}
+
 .activity-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -224,6 +269,44 @@ h2 {
     font-size: 0.84rem;
 }
 
+.detection-summary {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+
+.person-status {
+    display: inline-block;
+    margin: 12px 0 0;
+    padding: 4px 8px;
+    border-radius: 999px;
+    color: var(--muted);
+    background: #f0f3f5;
+    font-size: 0.76rem;
+    font-weight: 750;
+}
+
+.person-status--detected {
+    color: #8a3b11;
+    background: #fff0db;
+}
+
+.ai-summary {
+    margin: 8px 0 0;
+    color: var(--text);
+    font-size: 0.82rem;
+}
+
+.detection-heading {
+    color: var(--text);
+    font-weight: 700;
+}
+
+.detection-summary ul {
+    margin: 4px 0 0;
+    padding-left: 18px;
+}
+
 .event-type-badge {
     flex: 0 0 auto;
     padding: 5px 9px;
@@ -234,6 +317,14 @@ h2 {
     font-weight: 750;
     letter-spacing: 0.06em;
     text-transform: uppercase;
+}
+
+.event-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 9px;
 }
 
 /* Shared loading, empty, and error messages */
@@ -315,6 +406,10 @@ h2 {
         text-align: left;
     }
 
+    .section-actions {
+        align-items: flex-start;
+    }
+
     .activity-grid {
         grid-template-columns: 1fr;
     }
@@ -324,5 +419,13 @@ h2 {
     .event-details {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+
+    .event-actions {
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+        flex-direction: row;
     }
 }

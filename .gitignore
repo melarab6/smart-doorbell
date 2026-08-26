@@ -220,6 +220,12 @@ uploads/*
 .env
 secrets.h
 
+# Downloaded AI models and generated YOLO prediction output
+yolo26n.pt
+runs/
+predict/
+predict*/
+
 # Marimo
 marimo/_static/
 marimo/_lsp/
